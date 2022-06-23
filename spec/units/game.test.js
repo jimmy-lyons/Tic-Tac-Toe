@@ -1,25 +1,34 @@
 const Game = require('../../lib/game.js')
 
-const mockTile = jest.createMockFromModule('../../lib/tile.js')
-mockTile.value = jest.fn(() => null)
-mockTile.setValue = jest.fn(() => 'X')
+const MockTile = require('../../lib/tile.js')
+jest.mock('../../lib/tile.js')
 
-const mockBoard = {
-  tiles: [
-    [mockTile, mockTile, mockTile],
-    [mockTile, mockTile, mockTile],
-    [mockTile, mockTile, mockTile]
-  ]
-}
+const MockBoard = require('../../lib/board.js')
+jest.mock('../../lib/board.js')
 
 describe('Game', () => {
+  beforeEach(() => {
+    MockTile.mockClear()
+    MockBoard.mockClear()
+  })
+
   it('initialises with an instance of board', () => {
-    const game = new Game(mockBoard)
-    expect(game.board).toBe(mockBoard)
+    let mockedBoard = new MockBoard(MockTile)
+    const game = new Game(mockedBoard)
+    expect(game.board).toBe(mockedBoard)
   })
   it('can set the value of a tile', () => {
-    const game = new Game(mockBoard)
+    let mockedBoard = new MockBoard(MockTile)
+    let mockedTile = new MockTile
+    mockedBoard.getTiles.mockImplementation(() => {
+      return [
+        [mockedTile, "mockTile", "mockTile"],
+        ["mockTile", "mockTile", "mockTile"],
+        ["mockTile", "mockTile", "mockTile"]
+      ]
+    })
+    const game = new Game(mockedBoard)
     game.makeMove()
-    expect(mockTile.setValue).toHaveBeenCalledTimes(1)
+    expect(mockedTile.setValue).toHaveBeenCalledTimes(1)
   })
 })
